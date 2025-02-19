@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./frontend
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+    stdin_open: true
+  nginx:
+    restart: always #서버 정지시 정책
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3000:80"
+  backend:
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    container_name: app_backend
+    ports:
+       - "5000:5000"
+    volumes:
+      - /gradle
+      - /gradlew
+      - /settings.gradle
+      - /build.gradle
+      - ./backend:/app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://app_db:3306/IDE_DB?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=team5
+      - SPRING_DATASOURCE_PASSWORD=team12345
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    container_name: app_db
+    volumes:
+      - ./mysql/mysql_data:/var/lib/mysql
+      - ./mysql/sqls:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: IDE_DB
+      MYSQL_USER: team5
+      MYSQL_PASSWORD: team12345
+    ports:
+      - "3306:3306"
