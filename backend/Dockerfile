@@ -11,7 +11,7 @@ COPY gradle ./gradle
 # RUN ./gradlew bootJar
 
 #밑에 RUN, CMD는 운영환경에선 삭제
-RUN chmod+x gradlew
+RUN chmod +x gradlew
 
 CMD ["./gradlew", "bootRun"]
 #위에서 빌드된 걸 실행
