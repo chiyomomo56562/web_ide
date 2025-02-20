@@ -1,0 +1,4 @@
+# MySQL socket 파일 무시
+mysql/mysql_data/mysql.sock
+mysql/mysql_data/*.sock
+mysql/mysql_data/
