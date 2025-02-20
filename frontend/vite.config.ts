@@ -9,6 +9,7 @@ export default defineConfig({
       usePolling:true,
       interval:100,
     },
+    allowedHosts: ["frontend"],
     host: '0.0.0.0',
     port:3000,
   }
