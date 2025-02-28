@@ -1,0 +1,23 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    padding-top: 5rem;
+  }
+  
+  /* 헤더 영역 */
+  .container-header {
+    position: relative;
+    width: 100%;
+    text-align: end;
+    padding-right: 1rem;
+  }
+  
+  /* 행 정렬 */
+  .container-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1rem;
+  }
