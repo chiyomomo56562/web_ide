@@ -1,11 +1,32 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Home.css'
 import CreateContainer from '../../component/CreateContainer/CreateContainer'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 import ShowContainer from '../../component/ShowContainer/ShowContainer'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Containers } from '../../interface/Containers'
 
 const Home = () => {
+
+  let [containers, setContainers] = useState<Containers[]>([]);
+
+  useEffect(() => {
+    axios.get('/testContainer.json', {
+      params: {
+        page: 1,
+        sorted: "latest",
+        limit: 3,
+      }
+    })
+    .then((response) => {  
+      setContainers([...response.data.slice(0,3)]);
+    })
+    .catch(error => {
+      console.error("데이터 요청 실패:", error);
+    });
+  }, []);
+
   let navigator = useNavigate()
   return (
     <div>
@@ -15,8 +36,12 @@ const Home = () => {
         </div>
         <Row className="g-4 text-center mt-3 w-100">
           <CreateContainer />
-          {[1, 2, 3].map((id) => (
-            <ShowContainer key={id} id={id}/>
+          {/* 
+            완성 후 container로 바꿔줘야한다.
+          */}
+          
+          {containers.map((item, id) => (
+            <ShowContainer item={item} key={id}/>
           ))}
         </Row>
       </Container>

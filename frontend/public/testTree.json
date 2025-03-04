@@ -1,0 +1,13 @@
+[
+    { "id": "1", "name": "src", 
+      "children": [
+          { "id": "2", "name": "index.js" }, { "id": "3", "name": "App.js" },
+      { "id": "10", "name": "asdf",
+        "children": [{"id": "11", "name": "ei"}]
+      }] },
+  { "id": "4", "name": "public", 
+      "children": [{ "id": "5", "name": "index.html" 
+      }] },
+  { "id": "6", "name": "package.json" },
+  { "id": "8", "name": "component", "children":[{"id":"9", "name": "comp", "children":[]}]}
+]
