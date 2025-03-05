@@ -18,7 +18,6 @@ public class Folder {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(columnDefinition = "CHAR(36)")
     private Long id;
 
     @Column(nullable = false, length = 64)
