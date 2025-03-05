@@ -13,12 +13,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserResponseDto registerUser(UserRequestDto requestDto) {
+   public UserResponseDto registerUser(UserRequestDto requestDto) {
         // 중복 아이디 , 이메일 검사
-        if (userRepository.existsByLoginId(requestDto.getLoginId())) {
+        if (checkDuplicateLoginId(requestDto.getLoginId())) {
             throw new IllegalArgumentException("이미 존재하는 ID입니다.");
         }
-        if (userRepository.existsByEmail(requestDto.getEmail())) {
+        if (checkDuplicateLoginId(requestDto.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
         // DTO -> Entity 변환 후 저장
@@ -27,6 +27,11 @@ public class UserService {
         return UserResponseDto.fromEntity(user);
     }
 
+    //id가 중복인가 확인하기
+    public boolean checkDuplicateLoginId(String loginId) {
+        return userRepository.existsByLoginId(loginId);
+    }
+    
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
