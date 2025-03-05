@@ -19,7 +19,6 @@ public class File {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "CHAR(36)")
     private Long id;
 
     @Column(nullable = false, length = 64)
