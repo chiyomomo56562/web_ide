@@ -9,7 +9,7 @@ COPY gradle ./gradle
 #COPY src/main ./src/main
 
 # RUN ./gradlew bootJar
-
+EXPOSE 5000
 #밑에 RUN, CMD는 운영환경에선 삭제
 RUN chmod +x gradlew
 
