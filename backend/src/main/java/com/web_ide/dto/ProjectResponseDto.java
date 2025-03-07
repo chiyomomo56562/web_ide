@@ -18,7 +18,6 @@ public class ProjectResponseDto {
     private String userNickname;
     private LocalDateTime updatedAt;
 
-
     public static ProjectResponseDto fromEntity(Project project) {
         return ProjectResponseDto.builder()
                 .id(project.getId())
