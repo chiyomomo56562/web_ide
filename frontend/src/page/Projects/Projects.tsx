@@ -1,19 +1,18 @@
 import React, { useEffect } from 'react'
-import { Container, Row, Col, Dropdown, DropdownButton, Pagination } from "react-bootstrap";
+import { Container, Row, Dropdown, DropdownButton  } from "react-bootstrap";
 import { useState } from 'react';
 import ShowContainer from '../../component/ShowContainer/ShowContainer';
-import context from 'react-bootstrap/esm/AccordionContext';
+// import context from 'react-bootstrap/esm/AccordionContext';
 import CreateContainer from '../../component/CreateContainer/CreateContainer';
 import axios from 'axios';
-// import axios from 'axios';
-// import { Containers } from '../../interface/Containers';
+import { Containers } from '../../interface/Containers';
 
 const Projects = () => {
-  let [page, setPage] = useState<number>(1);
-  let [containers, setContainers] = useState<Containers[]>([]);
-  let [totalPages, setToatlPages] = useState<number>(2);
-  let [sortOrder, setSortOrder] = useState<string>("latest"); // 정렬 방식
-  let [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지
+  const [page, setPage] = useState<number>(1);
+  const [containers, setContainers] = useState<Containers[]>([]);
+  const [totalPages, setToatlPages] = useState<number>(2);
+  const [sortOrder, setSortOrder] = useState<string>("latest"); // 정렬 방식
+  const [currentPage, setCurrentPage] = useState<number>(0); // 현재 페이지
 
   useEffect( () => {
     {/*
@@ -22,7 +21,7 @@ const Projects = () => {
       그냥 요청만 하면 될 거 같음
       id랑 name을 요청해서 가져오자
     */}
-    axios.get('/testContainer.json', {
+    axios.get('/api/projects', {
       params: {
         page: currentPage, //페이지
         sorted: "latest",//최근 수정한 순서
@@ -30,8 +29,8 @@ const Projects = () => {
       }
     }).then(
       (response)=>{
-        setContainers(response.data);
-        // setToatlPages(response.data.totalPages);
+        console.log(response.data.content);
+      setContainers([...response.data.content.slice(0,7)]); //7개만 가져오기
       }
     ).catch(
       (error)=>{
@@ -70,7 +69,7 @@ const Projects = () => {
       {/* 📌 페이지네이션 버튼 */}
       <div>
         <button
-          disabled={currentPage === 1}
+          disabled={currentPage === 0}
           onClick={() => setCurrentPage((current) => current - 1)}
         >
           이전
@@ -79,10 +78,10 @@ const Projects = () => {
         {[...Array(totalPages)].map((_, i) => (
           <button
             key={i + 1}
-            onClick={() => setCurrentPage(i + 1)}
-            disabled={currentPage === i + 1}
+            onClick={() => setCurrentPage(i)}
+            disabled={currentPage === i}
           >
-            {i + 1}
+            {i+1}
           </button>
         ))}
 

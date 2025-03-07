@@ -12,22 +12,23 @@ const Home = () => {
   let [containers, setContainers] = useState<Containers[]>([]);
 
   useEffect(() => {
-    axios.get('/testContainer.json', {
+    axios.get('/api/projects', {
       params: {
-        page: 1,
+        page: 0,
         sorted: "latest",
         limit: 3,
       }
     })
     .then((response) => {  
-      setContainers([...response.data.slice(0,3)]);
+      console.log(response.data.content);
+      setContainers([...response.data.content.slice(0,3)]);
     })
     .catch(error => {
       console.error("데이터 요청 실패:", error);
     });
   }, []);
 
-  let navigator = useNavigate()
+  const navigator = useNavigate()
   return (
     <div>
        <Container className="d-flex flex-column align-items-center vh-100 pt-5">

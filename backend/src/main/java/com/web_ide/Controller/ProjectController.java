@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 
 @RestController
@@ -36,5 +37,10 @@ public class ProjectController {
         private int page = 0;
         private String sorted = "latest";//기본 정렬
         private int limit = 5;//한번에 보여줄 페이지
+    }
+
+    @GetMapping("/")
+    public ResponseEntity comment() {
+        return ResponseEntity.ok("Hello World");
     }
 }
