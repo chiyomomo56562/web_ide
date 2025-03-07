@@ -26,6 +26,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    @GetMapping("/projects")
     public ResponseEntity<List<Object>> getProjects(ProjectParams params) {
         Page<ProjectResponseDto> projects = projectService.getProjects(
                 params.getPage(), params.getSorted(), params.getLimit());
