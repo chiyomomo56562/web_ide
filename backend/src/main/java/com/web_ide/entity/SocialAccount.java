@@ -8,7 +8,9 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "social_accounts")
 public class SocialAccount {
 
