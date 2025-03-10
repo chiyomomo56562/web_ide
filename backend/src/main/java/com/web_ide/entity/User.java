@@ -55,5 +55,10 @@ public class User {
             throw new IllegalArgumentException("바꿀 비밀번호를 입력해주세요");
         }
     }
+    
+//    getter가 있는데 ide에서 계속 빨간줄 나와서 넣었습니다.
+    public Long getId() {
+        return this.id;
+    }
 
 }
