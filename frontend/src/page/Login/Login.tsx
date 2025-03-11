@@ -1,24 +1,48 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useState } from 'react'
 import { Container, Form, Button, Card } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  let navigator = useNavigate();
+  const navigator = useNavigate();
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCredentials({
+      ...credentials,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(credentials)
+    axios.post('api/auth/login', credentials, { withCredentials: true })
+      .then((res) => {
+        console.log(res.data);
+        localStorage.setItem("accessToken", res.data.accessToken);
+        navigator('/');
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
       <Card style={{ width: "350px", padding: "20px" }}>
         <Card.Body>
             <h3 className="text-center">로그인</h3>
-          <Form >
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicId">
               <Form.Label>ID</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="ID를 입력하세요"
-                name="id"
-                // value={formData.id}
-                // onChange={handleChange}
+                name="username"
+                value={credentials.username}
+                onChange={handleChange}
                 required
               />
             </Form.Group>
@@ -29,8 +53,8 @@ const Login = () => {
                 type="password"
                 placeholder="비밀번호를 입력하세요"
                 name="password"
-                // value={formData.password}
-                // onChange={handleChange}
+                value={credentials.password}
+                onChange={handleChange}
                 required
               />
             </Form.Group>

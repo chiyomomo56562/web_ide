@@ -42,10 +42,17 @@ const activeTab = createSlice({
 })
 export const {setActiveIndex} = activeTab.actions;
 
+const userInfo = createSlice({
+    name: "userInfo",
+    initialState: {username: "", email: "", token: ""},
+    reducers:{} // action을 추가해야함
+})
+
 const store = configureStore({
     reducer: {
         tabs: tabs.reducer,
         activeTab: activeTab.reducer,
+        userInfo: userInfo.reducer,
     },
   })
 
