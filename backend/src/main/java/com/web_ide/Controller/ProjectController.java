@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 
 @RestController
 @RequestMapping("/api")
@@ -24,10 +28,17 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("/projects")
-    public ResponseEntity<Page<ProjectResponseDto>> getProjects(ProjectParams Params) {
+    public ResponseEntity<List<Object>> getProjects(ProjectParams params) {
         Page<ProjectResponseDto> projects = projectService.getProjects(
-                Params.getPage() , Params.getSorted() , Params.getLimit());
-        return ResponseEntity.ok(projects);
+                params.getPage(), params.getSorted(), params.getLimit());
+
+        int maxPage = projects.getTotalPages();
+        List<ProjectResponseDto> projectList = projects.getContent();
+        List<Object> response = new ArrayList<>();
+        response.add(maxPage);
+        response.add(projectList);
+
+        return ResponseEntity.ok(response);
     }
 
     @Getter
