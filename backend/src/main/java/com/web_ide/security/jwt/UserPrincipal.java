@@ -14,8 +14,21 @@ public class UserPrincipal implements UserDetails{
 		this.user = user;
 	}
 	
+	public User getUser() {
+        return this.user;
+    }
+	
 	public long getId() {
+		//임의 생성 ID
 		return user.getId();
+	}
+	
+	public String getNickName() {
+		return user.getNickname();
+	}
+	
+	public String getEmail() {
+		return user.getEmail();
 	}
 	
 //	role을 사용을 안하는데 작성은 필수라 null로 반환

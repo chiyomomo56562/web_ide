@@ -6,11 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+//@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponseDto {
+	//id를 왜 만든거지? 의미가 있나?
     private Long id;
     private String loginId;
     private String nickname;
+    private String email;
 
     public UserResponseDto(User user) {
         this.id = user.getId();

@@ -10,31 +10,32 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-	
-	private UserRepository userRepository;
-	
-	public CustomUserDetailsService(UserRepository userRepository){
-		this.userRepository = userRepository;
-	}
-	
-	/**
-	 * loginId를 기반으로 유저를 찾아 반환
-	 */
-	@Override
-	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException{
-		User user = userRepository.findByLoginId(userName);
-		
-		if (userName == null) {
-			throw new UsernameNotFoundException("username not found"+ userName);
-		}
-		return new UserPrincipal(user);
-	}
-	
-	public UserDetails loadUserById(long userId){
-//		반환 타입이 Optional<User>이라 .orElseThrow()를 사용 가능하다.
-		User user = userRepository.findById(userId)
-			    .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
 
-		return new UserPrincipal(user);
-	}
+    private final UserRepository userRepository;
+    
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    
+    /**
+     * loginId를 기반으로 사용자를 찾아 반환
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByLoginId(username);
+        if (user == null) { // userName이 아니라, 실제 user 객체가 null인지를 확인해야 합니다.
+            throw new UsernameNotFoundException("User not found with loginId: " + username);
+        }
+        return new UserPrincipal(user);
+    }
+    
+    /**
+     * JWT 인증 시, 내부 userId로 사용자를 조회합니다.
+     */
+    public UserDetails loadUserById(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+        return new UserPrincipal(user);
+    }
 }
+
