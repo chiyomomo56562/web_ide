@@ -1,24 +1,20 @@
 package com.web_ide.Controller;
 
+import com.web_ide.dto.ProjectRequestDto;
 import com.web_ide.dto.ProjectResponseDto;
+import com.web_ide.security.CustomOAuth2User;
+import com.web_ide.security.UserPrincipal;
 import com.web_ide.service.ProjectService;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.Valid;
+import lombok.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 
 @RestController
 @RequestMapping("/api")
@@ -26,12 +22,13 @@ import java.util.Objects;
 public class ProjectController {
 
     private final ProjectService projectService;
-
     @GetMapping("/projects")
-    public ResponseEntity<List<Object>> getProjects(ProjectParams params) {
-        Page<ProjectResponseDto> projects = projectService.getProjects(
-                params.getPage(), params.getSorted(), params.getLimit());
-
+    public ResponseEntity<List<Object>> getProjects(ProjectParams projectParams){
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Page<ProjectResponseDto> projects = projectService.getProjects(userId, projectParams.getPage(), projectParams.getSorted(), projectParams.getLimit());
         int maxPage = projects.getTotalPages();
         List<ProjectResponseDto> projectList = projects.getContent();
         List<Object> response = new ArrayList<>();
@@ -40,6 +37,45 @@ public class ProjectController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    //프로젝트 만들기
+    @PostMapping("/projects")
+    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto){
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        ProjectResponseDto responseDto = projectService.createProject(projectRequestDto, userId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    //프로젝트 수정하기
+    @PatchMapping("/projects/{projectId}")
+    public ResponseEntity<ProjectResponseDto> updateProject(@PathVariable Long projectId,
+                                                            @Valid @RequestBody ProjectRequestDto requestDto) {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        ProjectResponseDto responseDto = projectService.updateProject(projectId, requestDto, userId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    //로그인 되어있는 user id 가져오기
+    public static Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserPrincipal) {
+                return ((UserPrincipal) principal).getId();
+            } else if (principal instanceof CustomOAuth2User) {
+                return ((CustomOAuth2User) principal).getUserId();
+            }
+        }
+        return null;
+    }
+
 
     @Getter
     @Setter
