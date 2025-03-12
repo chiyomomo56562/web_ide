@@ -16,8 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -78,7 +76,7 @@ public class ProjectController {
     @Getter
     @Setter
     @NoArgsConstructor
-    public class ProjectParams {
+    public static class ProjectParams {
         private int page = 0;
         private String sorted = "latest";//기본 정렬
         private int limit = 5;//한번에 보여줄 페이지
