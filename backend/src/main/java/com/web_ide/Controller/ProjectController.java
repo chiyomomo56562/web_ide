@@ -1,5 +1,6 @@
 package com.web_ide.Controller;
 
+import com.web_ide.dto.ProjectListDto;
 import com.web_ide.dto.ProjectRequestDto;
 import com.web_ide.dto.ProjectResponseDto;
 import com.web_ide.security.CustomOAuth2User;
@@ -8,10 +9,12 @@ import com.web_ide.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,43 +26,38 @@ public class ProjectController {
 
     private final ProjectService projectService;
     @GetMapping("/projects")
-    public ResponseEntity<List<Object>> getProjects(ProjectParams projectParams){
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
-        Page<ProjectResponseDto> projects = projectService.getProjects(userId, projectParams.getPage(), projectParams.getSorted(), projectParams.getLimit());
-        int maxPage = projects.getTotalPages();
-        List<ProjectResponseDto> projectList = projects.getContent();
-        List<Object> response = new ArrayList<>();
-        response.add(maxPage);
-        response.add(projectList);
+    public ResponseEntity<ProjectListDto> getProjects(ProjectParams projectParams) {
+        Long userId = getAuthUserId();
+        Page<ProjectResponseDto> projects = projectService.getProjects(
+                userId, projectParams.getPage(), projectParams.getSorted(), projectParams.getLimit());
 
-        return ResponseEntity.ok(response);
+        ProjectListDto projectList = new ProjectListDto(
+                projects.getTotalPages(), projects.getContent());
+        return ResponseEntity.ok(projectList);
     }
 
-
-    //프로젝트 만들기
     @PostMapping("/projects")
-    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto){
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
+    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto) {
+        Long userId = getAuthUserId();
         ProjectResponseDto responseDto = projectService.createProject(projectRequestDto, userId);
         return ResponseEntity.ok(responseDto);
     }
 
-    //프로젝트 수정하기
     @PatchMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDto> updateProject(@PathVariable Long projectId,
                                                             @Valid @RequestBody ProjectRequestDto requestDto) {
-        Long userId = getCurrentUserId();
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
+        Long userId = getAuthUserId();
         ProjectResponseDto responseDto = projectService.updateProject(projectId, requestDto, userId);
         return ResponseEntity.ok(responseDto);
+    }
+
+    // 로그인된 user id가 없으면 401오류를 던진다
+    private Long getAuthUserId() {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        return userId;
     }
 
     //로그인 되어있는 user id 가져오기
