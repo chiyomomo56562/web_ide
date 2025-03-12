@@ -11,6 +11,7 @@ import Projects from './page/Projects/Projects';
 import NewProject from './page/NewProject/NewProject';
 import ProjectSettings from './page/ProjectSetting/ProjectSettings';
 import IDE from './page/IDE/IDE';
+import AuthRedirect from './page/AuthRedirect/AuthRedirect';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path='/newproject' element={<NewProject />} />
         <Route path='/projects/:projectId' element={<ProjectSettings />} />
         <Route path='/projects/:projectId/editor' element={<IDE />}/>
+        <Route path='/auth-redirect' element={<AuthRedirect />} />
       </Routes>
     </>
   )

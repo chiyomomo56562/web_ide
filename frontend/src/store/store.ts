@@ -1,5 +1,7 @@
-import { configureStore, createSlice, current, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore, createSlice, PayloadAction, combineReducers } from '@reduxjs/toolkit';
+import storage from 'redux-persist/lib/storage';
 import { TabInterface, TabInterfaceArr } from '../interface/TabsInterface';
+import { persistReducer, persistStore } from 'redux-persist';
 
 const tabInit: TabInterfaceArr ={
     tabArr:
@@ -44,17 +46,58 @@ export const {setActiveIndex} = activeTab.actions;
 
 const userInfo = createSlice({
     name: "userInfo",
-    initialState: {username: "", email: "", token: ""},
-    reducers:{} // action을 추가해야함
+    initialState: {username: "", email: "", nickname: ""},
+    reducers:{
+        setUserInfo: (state, action: PayloadAction<{loginId: string, email: string, nickname: string}>)=>{
+            state.username = action.payload.loginId;
+            state.email = action.payload.email;
+            state.nickname = action.payload.nickname;
+        }
+    } 
 })
 
+export const {setUserInfo} = userInfo.actions;
+
+// const store = configureStore({
+//     reducer: {
+//         tabs: tabs.reducer,
+//         activeTab: activeTab.reducer,
+//         userInfo: userInfo.reducer,
+//     },
+//   })
+
+const rootReducer = combineReducers({
+    tabs: tabs.reducer,
+    activeTab: activeTab.reducer,
+    userInfo: userInfo.reducer,
+});
+
+const persistConfig = {
+    key: 'root',
+    storage,
+    whitelist: ['userInfo'],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 const store = configureStore({
-    reducer: {
-        tabs: tabs.reducer,
-        activeTab: activeTab.reducer,
-        userInfo: userInfo.reducer,
-    },
-  })
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+          serializableCheck: {
+            // redux-persist 관련 액션들은 직렬화 검사에서 제외합니다.
+            ignoredActions: [
+              'persist/PERSIST',
+              'persist/REHYDRATE',
+              'persist/FLUSH',
+              'persist/PAUSE',
+              'persist/REGISTER',
+            ],
+          },
+        }),
+});
+
+export const persistor = persistStore(store);
 
 export type Rootstate = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

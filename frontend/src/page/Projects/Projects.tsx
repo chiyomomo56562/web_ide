@@ -4,13 +4,13 @@ import { useState } from 'react';
 import ShowContainer from '../../component/ShowContainer/ShowContainer';
 // import context from 'react-bootstrap/esm/AccordionContext';
 import CreateContainer from '../../component/CreateContainer/CreateContainer';
-import axios from 'axios';
 import { Containers } from '../../interface/Containers';
+import apiClient from '../../api/apiClient';
 
 const Projects = () => {
   const [page, setPage] = useState<number>(1);
   const [containers, setContainers] = useState<Containers[]>([]);
-  const [totalPages, setToatlPages] = useState<number>(2);
+  const [totalPages, setToatlPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>("latest"); // 정렬 방식
   const [currentPage, setCurrentPage] = useState<number>(0); // 현재 페이지
 
@@ -21,7 +21,10 @@ const Projects = () => {
       그냥 요청만 하면 될 거 같음
       id랑 name을 요청해서 가져오자
     */}
-    axios.get('/api/projects', {
+    apiClient.get('/api/projects', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      },
       params: {
         page: currentPage, //페이지
         sorted: "latest",//최근 수정한 순서
@@ -29,8 +32,9 @@ const Projects = () => {
       }
     }).then(
       (response)=>{
-        console.log(response.data.content);
-      setContainers([...response.data.content.slice(0,7)]); //7개만 가져오기
+        console.log(response.data);
+        setToatlPages(response.data[0]-1);
+        setContainers([...response.data[1].slice(0,7)]); //7개만 가져오기
       }
     ).catch(
       (error)=>{

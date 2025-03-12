@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenProvider tokenProvider;
 	private final UserRepository userRepository;
@@ -53,8 +53,8 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // JwtTokenProvider를 사용해 Access Token과 Refresh Token 생성
-        String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+        String accessToken = tokenProvider.generateAccessToken(authentication, "local");
+        String refreshToken = tokenProvider.generateRefreshToken(authentication, "local");
         
 //        httpOnly 쿠키에 refresh token 저장
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
@@ -71,8 +71,8 @@ public class AuthController {
         UserResponseDto userResponse = UserResponseDto.fromEntity(userPrincipal.getUser());
         
         // JwtAuthenticationResponse DTO에 토큰 정보를 담아 클라이언트에 반환
-//        refresh token빼도 될 거 같은데 dto를 수정해야해서 다른곳에서도 수정이 필요하니 일단 보류
-        LoginResponseDto  loginresponse   = new LoginResponseDto(accessToken, refreshToken, userResponse);
+        LoginResponseDto  loginresponse   = new LoginResponseDto(accessToken, userResponse);
+//        logger.info("response: {}", loginresponse);
         return ResponseEntity.ok(loginresponse );
     }
 }

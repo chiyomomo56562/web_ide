@@ -49,9 +49,4 @@ public class ProjectController {
         private String sorted = "latest";//기본 정렬
         private int limit = 5;//한번에 보여줄 페이지
     }
-
-    @GetMapping("/")
-    public ResponseEntity comment() {
-        return ResponseEntity.ok("Hello World");
-    }
 }

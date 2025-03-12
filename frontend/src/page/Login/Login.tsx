@@ -2,9 +2,12 @@ import axios from 'axios';
 import React, { useState } from 'react'
 import { Container, Form, Button, Card } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setUserInfo } from '../../store/store';
 
 const Login = () => {
-  const navigator = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [credentials, setCredentials] = useState({ username: '', password: '' });
 
 
@@ -22,11 +25,21 @@ const Login = () => {
       .then((res) => {
         console.log(res.data);
         localStorage.setItem("accessToken", res.data.accessToken);
-        navigator('/');
+        dispatch(setUserInfo(res.data.user));
+        navigate('/');
       })
       .catch((err) => {
         console.error(err);
       });
+  };
+
+  const handleOAuthLogin = async (e) => {
+    e.preventDefault();
+    try {
+      window.location.href = "/oauth2/authorization/kakao";
+    } catch (error) {
+      console.error("OAuth 로그인 요청 실패:", error);
+    }
   };
 
   return (
@@ -69,12 +82,12 @@ const Login = () => {
           <Button
             variant="outline-dark"
             className="w-100 mb-2"
-            // onClick={handleOAuthLogin}
+            onClick={handleOAuthLogin}
           >
-            OAuth 로그인
+            카카오 로그인
           </Button>
 
-          <Button variant="link" className="w-100" onClick={()=>navigator('/signup')}>
+          <Button variant="link" className="w-100" onClick={()=>navigate('/signup')}>
             회원가입
           </Button>
         </Card.Body>

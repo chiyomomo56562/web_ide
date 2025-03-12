@@ -4,15 +4,18 @@ import CreateContainer from '../../component/CreateContainer/CreateContainer'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 import ShowContainer from '../../component/ShowContainer/ShowContainer'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { Containers } from '../../interface/Containers'
+import apiClient from '../../api/apiClient'
 
 const Home = () => {
 
   let [containers, setContainers] = useState<Containers[]>([]);
 
   useEffect(() => {
-    axios.get('/api/projects', {
+    apiClient.get('/api/projects', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      },  
       params: {
         page: 0,
         sorted: "latest",
@@ -20,8 +23,8 @@ const Home = () => {
       }
     })
     .then((response) => {  
-      console.log(response.data.content);
-      setContainers([...response.data.content.slice(0,3)]);
+      console.log(response.data);
+      setContainers([...response.data[1].slice(0,3)]);
     })
     .catch(error => {
       console.error("데이터 요청 실패:", error);

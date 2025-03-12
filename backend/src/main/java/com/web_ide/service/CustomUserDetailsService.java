@@ -3,6 +3,7 @@ package com.web_ide.service;
 import com.web_ide.entity.User;
 import com.web_ide.repository.UserRepository;
 import com.web_ide.security.jwt.UserPrincipal;
+import com.web_ide.security.oauth2.CustomOAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +36,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserById(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
-        return new UserPrincipal(user);
+        if (user.getPwd() == null) { // 🔹 OAuth2 로그인 사용자 확인
+            return new CustomOAuth2User(user.getId());
+        } else {
+            return new UserPrincipal(user); // 🔹 일반 로그인 사용자
+        }
     }
 }
 

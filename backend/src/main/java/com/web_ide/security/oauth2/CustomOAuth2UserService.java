@@ -9,79 +9,79 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
+
 
 @Service
+@Transactional
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+    private static final Logger logger = Logger.getLogger(CustomOAuth2UserService.class.getName());
 
     private final UserRepository userRepository;
     private final SocialAccountRepository socialAccountRepository;
-    
-    // Kakao를 사용하므로 provider 이름은 "kakao"로 고정
     private final String PROVIDER = "kakao";
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public CustomOAuth2UserService(UserRepository userRepository, SocialAccountRepository socialAccountRepository) {
         this.userRepository = userRepository;
         this.socialAccountRepository = socialAccountRepository;
     }
-    
+
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest)
-          throws OAuth2AuthenticationException {
-        // 1. 기본 로직을 통해 Kakao API로부터 사용자 정보를 JSON(Map) 형태로 받아옵니다.
+    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+        logger.info("🔹 요청된 클라이언트 ID: " + oAuth2UserRequest.getClientRegistration().getClientId());
+        logger.info("🔹 요청된 redirect URI: " + oAuth2UserRequest.getClientRegistration().getRedirectUri());
+        logger.info("🔹 요청된 토큰 URI: " + oAuth2UserRequest.getClientRegistration().getProviderDetails().getTokenUri());
+
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
+        logger.info("🔹🔹attributes: "+ attributes);
         
-        // 2. Kakao API 응답에서 고유 식별자인 "id" 값을 추출합니다.
-        String externalUserId = attributes.get("id").toString();
-        
-        // 3. 추가 사용자 정보 추출 (예: properties에서 nickname, kakao_account에서 email)
+        Long externalUserId = ((Number) attributes.get("id")).longValue();
         Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        String nickname = properties != null && properties.get("nickname") != null 
-                          ? properties.get("nickname").toString() : "";
-        
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        String email = "";
-        if (kakaoAccount != null && kakaoAccount.get("email") != null) {
-            email = kakaoAccount.get("email").toString();
-        }
-        
-        // 4. SocialAccountRepository를 통해, 이미 해당 소셜 계정이 매핑되어 있는지 확인합니다.
-        Optional<SocialAccount> socialAccountOptional =
-                socialAccountRepository.findByProviderAndExternalUserId(PROVIDER, externalUserId);
-        
+        String nickname = properties != null ? (String) properties.get("nickname") : "";
+        logger.info("🔹externalUserId :"+externalUserId);
+
+        Optional<SocialAccount> socialAccountOptional = socialAccountRepository.findByProviderAndExternalUserId(PROVIDER, externalUserId.toString());
+
         User user;
         if (socialAccountOptional.isPresent()) {
-            // 이미 등록된 소셜 계정이 있다면, 연결된 User 엔티티를 사용합니다.
             user = socialAccountOptional.get().getUser();
+            
+            // ✅ 닉네임만 업데이트
+            if (!user.getNickname().equals(nickname) && !nickname.isBlank()) {
+                user.updateNickname(nickname);
+                user = entityManager.merge(user); // ✅ 영속 상태로 변환
+                userRepository.saveAndFlush(user); // ✅ 즉시 저장
+            }
         } else {
-            // 신규 사용자: 내부 User 엔티티를 생성합니다.
-            // loginId는 Kakao의 고유 식별자(externalUserId)를 사용합니다.
             user = User.builder()
-                     .loginId("kakao_" + externalUserId) //카카오만 사용할 예정이라 이렇게 했는데 다른 것도 추가하면 추가 로직이 필요하다.
-                     .pwd("")       // 소셜 로그인은 비밀번호를 사용하지 않음
-                     .email(email)
+                     .loginId(PROVIDER + "_" + externalUserId)
+                     .pwd(null) // ✅ 소셜 로그인에서는 비밀번호를 사용하지 않음
                      .nickname(nickname)
                      .build();
             userRepository.save(user);
             
-            // 신규 SocialAccount 생성 및 내부 User와 연결
+            user = entityManager.merge(user); // ✅ 영속 상태로 변환
+            userRepository.saveAndFlush(user); // ✅ 즉시 저장
+
             SocialAccount socialAccount = SocialAccount.builder()
                 .user(user)
                 .provider(PROVIDER)
-                .externalUserId(externalUserId)
-                .accessToken(oAuth2UserRequest.getAccessToken().getTokenValue())
-                // tokenExpiry는 예시로 현재 시각 기준 1시간 후로 설정
-                .tokenExpiry(LocalDateTime.now().plusHours(1))
+                .externalUserId(externalUserId.toString())
                 .build();
-            socialAccountRepository.save(socialAccount);
+            socialAccountRepository.save(socialAccount); // ✅ 즉시 저장
         }
-        
-        // 5. 최종적으로 CustomOAuth2User를 생성하여 반환합니다.
-        // 이 객체는 Kakao의 전체 응답(attributes)와 내부 사용자 식별자(user.getId())를 포함합니다.
+        logger.info("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
         return new CustomOAuth2User(attributes, user.getId());
     }
 }

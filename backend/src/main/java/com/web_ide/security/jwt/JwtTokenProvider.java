@@ -31,12 +31,12 @@ public class JwtTokenProvider {
     }
 
     // Authentication 객체에서 내부 사용자 ID를 추출합니다.
-    private Long extractUserId(Authentication authentication) {
+    private Long extractId(Authentication authentication) {
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserPrincipal) {
             return ((UserPrincipal) principal).getId();
         } else if (principal instanceof CustomOAuth2User) {
-            return ((CustomOAuth2User) principal).getUserId();
+            return ((CustomOAuth2User) principal).getId();
         } else {
             throw new IllegalStateException("알 수 없는 principal 타입: " + principal.getClass().getName());
         }
@@ -49,13 +49,14 @@ public class JwtTokenProvider {
      * @return 생성된 JWT Access Token 문자열
      */
     
-    public String generateAccessToken(Authentication authentication) {
-        Long userId = extractUserId(authentication);
+    public String generateAccessToken(Authentication authentication, String loginType) {
+        Long userId = extractId(authentication); //id(number)를 가져온다.
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
                 .setSubject(Long.toString(userId))
+                .claim("loginType", loginType) //로그인 타입을 지정
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -67,13 +68,14 @@ public class JwtTokenProvider {
      * @param authentication
      * @return
      */
-    public String generateRefreshToken(Authentication authentication) {
-        Long userId = extractUserId(authentication);
+    public String generateRefreshToken(Authentication authentication, String loginType) {
+        Long userId = extractId(authentication);
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtRefreshExpirationInMs);
 
         return Jwts.builder()
                 .setSubject(Long.toString(userId))
+                .claim("loginType", loginType) //로그인 타입을 지정
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -82,16 +84,29 @@ public class JwtTokenProvider {
 
     /**
      * token에서 유저의 id를 뽑아낸다.
-     * @param Access token
+     * @param  token
      * @return subject of token (토큰을 생성할 때 설정했었다.)
      */
-    public Long getUserIdFromJWT(String token) {
+    public Long getIdFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
         return Long.parseLong(claims.getSubject());
+    }
+    /**
+     * loginType을 반환
+     * @param token
+     * @return loginType ("local" or "oauth2")
+     */
+    public String getLoginTypeFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("loginType", String.class); // 🔹 로그인 타입 반환 ("local" 또는 "oauth2")
     }
 
     /**
@@ -108,7 +123,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (Exception ex) {
-//			logger.error("token is not validated: ", ex);
+//			logger.info("token is not validated: ", ex);
         }
         return false;
     }

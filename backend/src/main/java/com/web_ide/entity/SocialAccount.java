@@ -19,7 +19,7 @@ public class SocialAccount {
     private Long id;
 
     //@ManyToOne(fetch = FetchType.LAZY)
-    @OneToOne(cascade = CascadeType.ALL)//일단 카카오 로그인 하나만 하니까
+    @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)//일단 카카오 로그인 하나만 하니까
     @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
@@ -28,11 +28,5 @@ public class SocialAccount {
 
     @Column(name = "external_user_id", nullable = false)
     private String externalUserId;
-
-    @Column(name = "access_token", nullable = false, columnDefinition = "TEXT")
-    private String accessToken;
-
-    @Column(name = "token_expiry", nullable = false)
-    private LocalDateTime tokenExpiry;
 
 }

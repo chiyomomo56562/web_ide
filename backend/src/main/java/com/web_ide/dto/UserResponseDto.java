@@ -15,13 +15,19 @@ public class UserResponseDto {
     private String nickname;
     private String email;
 
-    public UserResponseDto(User user) {
-        this.id = user.getId();
-        this.loginId = user.getLoginId();
-        this.nickname = user.getNickname();
-    }
+//    public UserResponseDto(User user) {
+//        this.id = user.getId();
+//        this.loginId = user.getLoginId();
+//        this.nickname = user.getNickname();
+//        this.email = user.getEmail();
+//    }
 
     public static UserResponseDto fromEntity(User user) {
-        return new UserResponseDto(user);
+        return new UserResponseDto(
+                user.getId(),
+                user.getLoginId(),
+                user.getNickname(),
+                user.getEmail()
+            );
     }
 }
