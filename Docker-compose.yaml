@@ -17,6 +17,9 @@ services:
       dockerfile: Dockerfile
       context: ./nginx
     container_name: nginx
+    # volumes추가!
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # ✅ Nginx 설정을 호스트에서 수정 가능
     ports:
       - "3000:80"
     depends_on:
@@ -30,11 +33,18 @@ services:
     ports:
        - "5000:5000"
     volumes:
-      - /gradle
-      - /gradlew
-      - /settings.gradle
-      - /build.gradle
+      - ./backend/gradle:/app/gradle
+      - ./backend/gradlew:/app/gradlew
+      - ./backend/settings.gradle:/app/settings.gradle
+      - ./backend/build.gradle:/app/build.gradle
       - ./backend:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      # 수정 문제시 주석처리한 것으로 롤백
+      # - /gradle
+      # - /gradlew
+      # - /settings.gradle
+      # - /build.gradle
+      # - ./backend:/app
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://app_db:3306/IDE_DB?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
       - SPRING_DATASOURCE_USERNAME=team5

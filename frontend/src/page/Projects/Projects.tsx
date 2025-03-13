@@ -13,6 +13,7 @@ const Projects = () => {
   const [totalPages, setToatlPages] = useState<number>(0);
   const [sortOrder, setSortOrder] = useState<string>("latest"); // 정렬 방식
   const [currentPage, setCurrentPage] = useState<number>(0); // 현재 페이지
+  const [data, setData] = useState([]);
 
   useEffect( () => {
     {/*
@@ -34,8 +35,8 @@ const Projects = () => {
     }).then(
       (response)=>{
         console.log(response.data);
-        setToatlPages(response.data[0]-1);
-        setContainers([...response.data[1].slice(0,7)]); //7개만 가져오기
+        setToatlPages(response.data.maxPage);
+        setData(response.data.projects);
       }
     ).catch(
       (error)=>{
@@ -43,6 +44,13 @@ const Projects = () => {
       }
     )
   }, [currentPage]) 
+
+  useEffect(() => {
+      /**
+       * 데이터가 변경 될 때 실행 한다.
+       */
+      setContainers([...data.slice(0,7)]);
+    }, [data]);
 
   // 페이지 변경 핸들러
   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);

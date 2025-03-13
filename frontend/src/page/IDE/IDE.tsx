@@ -6,20 +6,27 @@ import CodeEditor from "../../component/CodeEditor/CodeEditor";
 import { useDispatch, useSelector } from "react-redux";
 import { Rootstate, setContainerInfo } from "../../store/store";
 import startContainer from "../../api/startContainer";
+import { useParams } from "react-router-dom";
 
-const IDE = ({projectId}) => {
+const IDE = () => {
+  const {projectId} = useParams();
   const dispatch = useDispatch();
   const containerUrl = useSelector((state:Rootstate) => state.containerInfo.url);
   const containerState = useSelector((state:Rootstate) => state.containerInfo.state);
-  
+
   useEffect(() => {
+    console.log("useEffect start!!!!!!!!!!!!!!!!");
     /**
      * 컨테이너 생성
      */
     const initializeContainer = async () => {
+      console.log("intitializeContainer start!!!!!!!!!!!!!!!!");
       const projectIdNum = Number(projectId);
+      console.log("projectIdNum!!!!!!!!!!!!!!!! ", projectIdNum);
       if (!containerUrl || containerState === "stopped") {
+        console.log("startContainer start!!!!!!!!!!!!!!!! ");
         const containerData = await startContainer(projectIdNum);
+        console.log("startContainer end!!!!!!!!!!!!!!!! ");
         if (containerData) {
           // 컨테이너 생성에 성공했으면 redux-store에 저장
           dispatch(setContainerInfo({

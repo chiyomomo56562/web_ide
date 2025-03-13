@@ -2,6 +2,11 @@
 FROM openjdk:21-jdk-slim-buster 
 # AS builder
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY gradlew build.gradle settings.gradle ./
