@@ -3,8 +3,8 @@ package com.web_ide.Controller;
 import com.web_ide.dto.ProjectListDto;
 import com.web_ide.dto.ProjectRequestDto;
 import com.web_ide.dto.ProjectResponseDto;
-import com.web_ide.security.CustomOAuth2User;
-import com.web_ide.security.UserPrincipal;
+import com.web_ide.security.oauth2.CustomOAuth2User;
+import com.web_ide.security.jwt.UserPrincipal;
 import com.web_ide.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -66,7 +66,7 @@ public class ProjectController {
             if (principal instanceof UserPrincipal) {
                 return ((UserPrincipal) principal).getId();
             } else if (principal instanceof CustomOAuth2User) {
-                return ((CustomOAuth2User) principal).getUserId();
+                return ((CustomOAuth2User) principal).getId();
             }
         }
         return null;
