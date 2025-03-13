@@ -46,10 +46,10 @@ export const {setActiveIndex} = activeTab.actions;
 
 const userInfo = createSlice({
     name: "userInfo",
-    initialState: {username: "", email: "", nickname: ""},
+    initialState: {id: 0, email: "", nickname: ""},
     reducers:{
-        setUserInfo: (state, action: PayloadAction<{loginId: string, email: string, nickname: string}>)=>{
-            state.username = action.payload.loginId;
+        setUserInfo: (state, action: PayloadAction<{id: number, email: string, nickname: string}>)=>{
+            state.id = action.payload.id;
             state.email = action.payload.email;
             state.nickname = action.payload.nickname;
         }
@@ -58,30 +58,58 @@ const userInfo = createSlice({
 
 export const {setUserInfo} = userInfo.actions;
 
-// const store = configureStore({
-//     reducer: {
-//         tabs: tabs.reducer,
-//         activeTab: activeTab.reducer,
-//         userInfo: userInfo.reducer,
-//     },
-//   })
+const containerInfo = createSlice({
+    name: "containerInfo",
+    initialState: {id: 0, state: "stopped", url:"", websocketConnected: false},
+    reducers:{
+        setContainerInfo: (state, action) => {
+            state.id = action.payload.id;
+            state.state = action.payload.state;
+            state.url = action.payload.url;
+        },
+        updateContainerState: (state, action) => {
+            state.state = action.payload;
+        },
+        updateWebSocketStatus: (state, action) => {
+            state.websocketConnected = action.payload;
+        },
+        resetContainerInfo: (state) => {
+            state.id = 0;
+            state.state = "stopped";
+            state.url = "";
+            state.websocketConnected = false;
+        },
+    },
+})
+
+export const {
+    setContainerInfo,
+    updateContainerState,
+    updateWebSocketStatus,
+    resetContainerInfo,
+} = containerInfo.actions;
+
+const userPersistConfig = {
+    key: 'userInfo',
+    storage,
+    whitelist: ['username', 'email', 'nickname']
+};
+
+const containerInfoPersistConfig = {
+    key: 'containerInfo',
+    storage,
+    whitelist: ['id', 'state', 'url', 'websocketConnected'] //유지할 데이터
+}
 
 const rootReducer = combineReducers({
     tabs: tabs.reducer,
     activeTab: activeTab.reducer,
-    userInfo: userInfo.reducer,
+    userInfo: persistReducer(userPersistConfig, userInfo.reducer),
+    containerInfo: persistReducer(containerInfoPersistConfig, containerInfo.reducer),
 });
 
-const persistConfig = {
-    key: 'root',
-    storage,
-    whitelist: ['userInfo'],
-};
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 const store = configureStore({
-    reducer: persistedReducer,
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
           serializableCheck: {

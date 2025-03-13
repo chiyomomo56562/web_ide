@@ -61,7 +61,7 @@ public class AuthController {
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);      // HTTPS 사용 시 활성화 (개발환경에 따라 조정)
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(jwtRefreshExpirationInMs/1000); // 예: 7일
+        refreshCookie.setMaxAge(jwtRefreshExpirationInMs/1000); 
         response.addCookie(refreshCookie);
         
 //      userDetails를 implements해서 만들어져서 security context에서 user객체를 받아온다.

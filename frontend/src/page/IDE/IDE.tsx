@@ -1,10 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Explorer from "../../component/Explorer/Explorer";
 import CodeEditor from "../../component/CodeEditor/CodeEditor";
+import { useDispatch, useSelector } from "react-redux";
+import { Rootstate, setContainerInfo } from "../../store/store";
+import startContainer from "../../api/startContainer";
 
-const IDE = () => {
+const IDE = ({projectId}) => {
+  const dispatch = useDispatch();
+  const containerUrl = useSelector((state:Rootstate) => state.containerInfo.url);
+  const containerState = useSelector((state:Rootstate) => state.containerInfo.state);
+  
+  useEffect(() => {
+    /**
+     * 컨테이너 생성
+     */
+    const initializeContainer = async () => {
+      const projectIdNum = Number(projectId);
+      if (!containerUrl || containerState === "stopped") {
+        const containerData = await startContainer(projectIdNum);
+        if (containerData) {
+          // 컨테이너 생성에 성공했으면 redux-store에 저장
+          dispatch(setContainerInfo({
+            id: containerData.id,
+            state: "running",
+            url: containerData.url
+          }));
+        }
+      }
+    };
+
+    initializeContainer();
+    }, [dispatch, projectId, containerUrl, containerState]);
+  
+
   return (
     <Container fluid className="mt-2" style={{ height: "100vh" }}>
       <Row className="h-100 d-flex flex-nowrap gap-0 m-0">

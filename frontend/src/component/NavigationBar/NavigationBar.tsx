@@ -30,7 +30,7 @@ const NavigationBar = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text style={{cursor: "pointer"}} onClick={()=>{
-                if(userInfo.username !== "") {
+                if(userInfo.nickname !== "") {
                   // 로그인 된 상태이면 프로필 페이지로 이동
                   navigate('profile');
                 } else {
@@ -38,7 +38,7 @@ const NavigationBar = () => {
                   navigate('login');
                 }
             }}>
-              { userInfo.username !== "" ? userInfo.nickname : "로그인" }
+              { userInfo.nickname !== "" ? userInfo.nickname : "로그인" }
             </Navbar.Text>
           </Navbar.Collapse>
         </Container>

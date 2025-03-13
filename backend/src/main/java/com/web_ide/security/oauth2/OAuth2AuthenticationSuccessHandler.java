@@ -57,7 +57,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // 🔹 React로 리다이렉트 (한글 깨짐 방지)
         String redirectUrl = "http://localhost:3000/auth-redirect"
-                + "?loginId=" + encodedId
+                + "?id=" + encodedId
                 + "&nickname=" + encodedNickname
                 + "&email=" + encodedEmail
                 + "&accessToken=" + accessToken;

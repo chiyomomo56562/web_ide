@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 //@NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseDto {
-	//id를 왜 만든거지? 의미가 있나?
+	//id가 의미 있는 값이네....
     private Long id;
     private String loginId;
     private String nickname;
