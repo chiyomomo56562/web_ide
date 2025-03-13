@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './Home.css'
 import CreateContainer from '../../component/CreateContainer/CreateContainer'
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container, Row, Button } from 'react-bootstrap'
 import ShowContainer from '../../component/ShowContainer/ShowContainer'
 import { useNavigate } from 'react-router-dom'
 import { Containers } from '../../interface/Containers'
@@ -10,11 +10,12 @@ import apiClient from '../../api/apiClient'
 const Home = () => {
 
   let [containers, setContainers] = useState<Containers[]>([]);
-
+  const [data, setData] = useState([]);
   useEffect(() => {
     apiClient.get('/api/projects', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        'Accept': 'application/json'
       },  
       params: {
         page: 0,
@@ -24,13 +25,20 @@ const Home = () => {
     })
     .then((response) => {  
       console.log(response.data);
-      setContainers([...response.data[1].slice(0,3)]);
+      setData(response.data.projects);
     })
     .catch(error => {
       console.error("데이터 요청 실패:", error);
     });
   }, []);
 
+  useEffect(() => {
+    /**
+     * 데이터가 변경 될 때 실행 한다.
+     */
+    setContainers([...data.slice(0,3)]);
+  }, [data]);
+  
   const navigator = useNavigate()
   return (
     <div>

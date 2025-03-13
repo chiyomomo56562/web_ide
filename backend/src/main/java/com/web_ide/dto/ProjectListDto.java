@@ -1,7 +1,9 @@
 package com.web_ide.dto;
 
 import java.util.List;
+import lombok.*;
 
+@Data
 public class ProjectListDto {
     private int maxPage;
     private List<ProjectResponseDto> projects;

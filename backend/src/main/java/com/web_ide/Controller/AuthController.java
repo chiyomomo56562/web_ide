@@ -72,7 +72,7 @@ public class AuthController {
         
         // JwtAuthenticationResponse DTO에 토큰 정보를 담아 클라이언트에 반환
         LoginResponseDto  loginresponse   = new LoginResponseDto(accessToken, userResponse);
-//        logger.info("response: {}", loginresponse);
+        logger.info("loginUser: ", userResponse.getId());
         return ResponseEntity.ok(loginresponse );
     }
 }

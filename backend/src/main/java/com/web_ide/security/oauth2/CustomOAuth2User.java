@@ -65,7 +65,7 @@ public class CustomOAuth2User implements OAuth2User,UserDetails {
     }
     @Override
     public String getUsername() {
-    	return attributes.get("id").toString();
+    	return getId().toString();
     }
 
     @Override

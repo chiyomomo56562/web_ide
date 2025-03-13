@@ -23,7 +23,8 @@ const Projects = () => {
     */}
     apiClient.get('/api/projects', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        'Accept': 'application/json'
       },
       params: {
         page: currentPage, //페이지

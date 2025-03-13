@@ -34,7 +34,6 @@ public class ProjectService {
         Pageable pageable = PageRequest.of(page, limit, sort);
         Page<Project> projectPage = projectRepository.findByUserId(userId,pageable);
         return projectPage.map(ProjectResponseDto::fromEntity);
-
     }
 
     //프로젝트 생성하기
