@@ -39,28 +39,27 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, show, onClose }) => {
     >
       <Overlay target={target.current} show={show} placement="right">
         <Popover id="context-menu-popover">
-          <Popover.Header as="h3">옵션</Popover.Header>
           <Popover.Body>
             <ul className="list-unstyled mb-0">
               <li>
                 <button 
                   className="btn btn-link" 
                   onClick={() => { onClose(); console.log("Option 1 선택"); }}>
-                  Option 1
+                  새파일
                 </button>
               </li>
               <li>
                 <button 
                   className="btn btn-link" 
                   onClick={() => { onClose(); console.log("Option 2 선택"); }}>
-                  Option 2
+                  새폴더
                 </button>
               </li>
               <li>
                 <button 
                   className="btn btn-link" 
                   onClick={() => { onClose(); console.log("Option 3 선택"); }}>
-                  Option 3
+                  이름 바꾸기
                 </button>
               </li>
             </ul>

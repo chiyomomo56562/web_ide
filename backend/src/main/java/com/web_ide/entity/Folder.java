@@ -29,7 +29,7 @@ public class Folder {
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_id", nullable = true)
     private Folder parent;
 
     @Column(name = "relative_path", length = 255)

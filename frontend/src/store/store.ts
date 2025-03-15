@@ -4,11 +4,7 @@ import { TabInterface, TabInterfaceArr } from '../interface/TabsInterface';
 import { persistReducer, persistStore } from 'redux-persist';
 
 const tabInit: TabInterfaceArr ={
-    tabArr:
-    [
-        { tabId:0, fileId: 2, name: "index.js", content: "// JavaScript Code", language: "javascript" },
-        { tabId:1, fileId: 3, name: "App.js", content: "app.js", language: "javascript" },
-    ]
+    tabArr:[]
 }
 
 const tabs = createSlice({
@@ -27,18 +23,20 @@ const tabs = createSlice({
                     return {...item, tabId: i}
                 })
                 state.tabArr = [...newState]
+            },
+            updateTabContent: (state, action: PayloadAction<{tabId: number, content: string}>)=>{
+                state.tabArr[action.payload.tabId].content = action.payload.content;
             }
         },
 });
-export const {addNewTab, removeTabs} = tabs.actions;
+export const {addNewTab, removeTabs, updateTabContent} = tabs.actions;
 
 const activeTab = createSlice({
     name: "activeTab",
-    initialState: 0,
+    initialState: {activeIndex:0},
     reducers:{
         setActiveIndex: (state, action: PayloadAction<number>)=>{
-            console.log("setActiveIndex:", action.payload)
-            return action.payload
+            state.activeIndex = action.payload;
         }
     }
 })
@@ -52,18 +50,23 @@ const userInfo = createSlice({
             state.id = action.payload.id;
             state.email = action.payload.email;
             state.nickname = action.payload.nickname;
+        },
+        resetUserInfo: (state)=>{
+            state.id = 0;
+            state.email = "";
+            state.nickname = "";
         }
     } 
 })
 
-export const {setUserInfo} = userInfo.actions;
+export const {setUserInfo,resetUserInfo} = userInfo.actions;
 
 const containerInfo = createSlice({
     name: "containerInfo",
-    initialState: {id: 0, state: "stopped", url:"", websocketConnected: false},
+    initialState: {name:"", state: "stopped", url:"", websocketConnected: false},
     reducers:{
         setContainerInfo: (state, action) => {
-            state.id = action.payload.id;
+            state.name = action.payload.name;
             state.state = action.payload.state;
             state.url = action.payload.url;
         },
@@ -74,7 +77,7 @@ const containerInfo = createSlice({
             state.websocketConnected = action.payload;
         },
         resetContainerInfo: (state) => {
-            state.id = 0;
+            state.name = "";
             state.state = "stopped";
             state.url = "";
             state.websocketConnected = false;
@@ -98,7 +101,7 @@ const userPersistConfig = {
 const containerInfoPersistConfig = {
     key: 'containerInfo',
     storage,
-    whitelist: ['id', 'state', 'url', 'websocketConnected'] //유지할 데이터
+    whitelist: ['name', 'state', 'url', 'websocketConnected'] //유지할 데이터
 }
 
 const rootReducer = combineReducers({

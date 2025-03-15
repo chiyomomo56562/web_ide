@@ -8,7 +8,12 @@ import com.web_ide.entity.User;
 import com.web_ide.repository.FolderRepository;
 import com.web_ide.repository.ProjectRepository;
 import com.web_ide.repository.UserRepository;
+import com.web_ide.security.oauth2.OAuth2AuthenticationFailureHandler;
+
 import lombok.RequiredArgsConstructor;
+
+import java.util.logging.Logger;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
+	private static final Logger logger = Logger.getLogger(OAuth2AuthenticationFailureHandler.class.getName());
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -39,29 +45,20 @@ public class ProjectService {
     //프로젝트 생성하기
     public ProjectResponseDto createProject(ProjectRequestDto requestDto, Long userId) {
         //유저 조회하기
+    	logger.info("createProject!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 유저입니다"));
-
-        //그.. root폴더 생성하기
-        Folder rootFolder = new Folder();
-        rootFolder.setName(requestDto.getName());//프로젝트명과 root폴더명 통일
-        rootFolder.setRelativePath("/");
-        rootFolder.setParent(null);
-        Folder saveFolder = folderRepository.save(rootFolder);
 
         //폴더와 유저 연결하기
         Project project = Project.builder()
                 .name(requestDto.getName())
                 .description(requestDto.getDescription())
                 .user(user)
-                .rootFolder(saveFolder)
                 .build();
+        logger.info("project: "+project);
         Project saveProject = projectRepository.save(project);
 
-        //생성된 프로젝트의 정보를 루트 폴더에 반영해주기
-        saveFolder.setProject(saveProject);
-        folderRepository.save(saveFolder);
-
+        logger.info("project id:" + project.getId());
         return ProjectResponseDto.fromEntity(saveProject);
     }
 

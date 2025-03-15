@@ -19,4 +19,10 @@ export default defineConfig({
       clientPort:5173,
     }
   },
+  optimizeDeps: {
+    include: ["@stomp/stompjs","sockjs-client"],
+  },
+  define: {
+    global: "window",
+  },
 })

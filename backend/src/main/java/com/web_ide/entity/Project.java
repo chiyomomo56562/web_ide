@@ -32,9 +32,9 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     private User user;
 
-    @JoinColumn(name = "root_folder")
-    @OneToOne
-    private Folder rootFolder;
+//    @JoinColumn(name = "root_folder")
+//    @OneToOne
+//    private Folder rootFolder;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -45,11 +45,11 @@ public class Project {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Project(String name, String description, User user,Folder rootFolder){
+    public Project(String name, String description, User user){
         this.name = name;
-        this.user = user;
         this.description = description;
-        this.rootFolder = rootFolder;
+        this.user = user;
+//        this.rootFolder = rootFolder;
     }
 
     public void changeProjectName(String name) {

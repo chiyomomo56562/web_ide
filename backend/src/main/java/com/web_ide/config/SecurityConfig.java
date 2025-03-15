@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -55,7 +56,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/api/oauth2/**", "/oauth2/**", "/api/login/oauth2/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/oauth2/**", "/oauth2/**", "/api/login/oauth2/**", "/ws/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(
@@ -69,6 +70,8 @@ public class SecurityConfig {
                 .successHandler(oAuth2AuthenticationSuccessHandler)
                 .failureHandler(oAuth2AuthenticationFailureHandler)
             );
+        http
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         
 
         http.addFilterBefore(

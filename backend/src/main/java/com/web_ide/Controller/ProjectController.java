@@ -50,8 +50,11 @@ public class ProjectController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto) {
+    public ResponseEntity<ProjectResponseDto> createProject(@RequestHeader("Authorization") String authorizationHeader,
+    		@Valid @RequestBody ProjectRequestDto projectRequestDto) {
+    	logger.info("createProject!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         Long userId = getAuthUserId();
+        logger.info("userId"+userId);
         ProjectResponseDto responseDto = projectService.createProject(projectRequestDto, userId);
         return ResponseEntity.ok(responseDto);
     }

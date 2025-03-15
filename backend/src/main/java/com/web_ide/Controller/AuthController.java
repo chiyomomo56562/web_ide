@@ -2,6 +2,7 @@ package com.web_ide.Controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.web_ide.dto.SignupRequestDto;
 import com.web_ide.dto.LoginResponseDto;
 import com.web_ide.dto.LoginRequestDto;
 import com.web_ide.dto.UserResponseDto;
@@ -17,9 +18,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,14 +31,16 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenProvider tokenProvider;
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 	
 	@Value("${app.jwtRefreshExpirationInMs}")
     private int jwtRefreshExpirationInMs;
 	
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, UserRepository userRepository) {
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 	
     @PostMapping("/login")
@@ -74,5 +79,27 @@ public class AuthController {
         LoginResponseDto  loginresponse   = new LoginResponseDto(accessToken, userResponse);
         logger.info("loginUser: ", userResponse.getId());
         return ResponseEntity.ok(loginresponse );
+    }
+    
+    @GetMapping("/check-id")
+    public ResponseEntity<?> checkIdAvailability(@RequestParam String id) {
+        boolean exists = userRepository.existsByLoginId(id);
+        return ResponseEntity.ok(Map.of("available", !exists));
+    }
+
+    // ✅ 회원가입 API
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequestDto request) {
+        if (userRepository.existsByLoginId(request.getLoginId())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "이미 사용 중인 아이디입니다."));
+        }
+
+        // 비밀번호 해싱 (SHA-256 대신 Bcrypt 사용)
+        String hashedPwd = passwordEncoder.encode(request.getPwd());
+
+        User user = new User(request.getLoginId(), hashedPwd, request.getEmail(), request.getNickname());
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
     }
 }

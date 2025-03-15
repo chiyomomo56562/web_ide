@@ -6,9 +6,9 @@ import ShowContainer from '../../component/ShowContainer/ShowContainer'
 import { useNavigate } from 'react-router-dom'
 import { Containers } from '../../interface/Containers'
 import apiClient from '../../api/apiClient'
+import { useDispatch } from 'react-redux'
 
 const Home = () => {
-
   let [containers, setContainers] = useState<Containers[]>([]);
   const [data, setData] = useState([]);
   useEffect(() => {

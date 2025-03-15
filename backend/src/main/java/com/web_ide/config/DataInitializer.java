@@ -25,9 +25,9 @@ public class DataInitializer {
             User user3 = userRepository.save(new User("asdf3", encryptPwd, "user3@example.com", "user3"));
 
             // 프로젝트 추가
-            projectRepository.save(new Project("Project A", "This is project A", user1, null));
-            projectRepository.save(new Project("Project B", "This is project B", user2, null));
-            projectRepository.save(new Project("Project C", "This is project C", user3, null));
+            projectRepository.save(new Project("Project A", "This is project A", user1));
+            projectRepository.save(new Project("Project B", "This is project B", user2));
+            projectRepository.save(new Project("Project C", "This is project C", user3));
         };
     }
 }

@@ -25,7 +25,9 @@ public class IDEController {
     @PostMapping("/start-ide")
     public ResponseEntity<Map<String, String>> startIDE(@RequestBody  Map<String, String> request) {
         try {
+        	logger.info("IDEController!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         	String projectId = request.get("projectId");
+        	logger.info("projectId: "+ projectId);
             String containerName = "ide-" + projectId;
             
          // ✅ 1. 실행 중인 컨테이너가 있으면 기존 URL 반환
@@ -33,12 +35,14 @@ public class IDEController {
                 logger.info("✅ 이미 실행 중인 컨테이너: " + containerName);
                 String existingPort = getContainerPort(containerName);
                 Map<String, String> response = new HashMap<>();
-                response.put("id", containerName);
-                response.put("url", "http://your-server-ip:" + existingPort);
+                response.put("name", containerName);
+                response.put("url", "http://localhost:" + existingPort);
+                logger.info("✅ container start id: " + containerName);
+                logger.info("✅ container start url: http://localhost:" + existingPort);
                 return ResponseEntity.ok(response);
             }
 
-            // ✅ 2. 실행 중이 아니더라도 기존 컨테이너가 있으면 삭제
+            // ✅ 2. 실행 중이 아닌 기존 컨테이너가 있으면 삭제
             if (isContainerExisting(containerName)) {
                 logger.info("⚠️ 기존 컨테이너 삭제 중: " + containerName);
                 removeExistingContainer(containerName);
@@ -47,13 +51,6 @@ public class IDEController {
             logger.info("!!!!!!!!!!!!!!!!!!!!!!!containerName: "+ containerName);
             int assignedPort = startDockerContainer(containerName); //여기서 문제 발생!
             logger.info("!!!!!!!!!!!!!!!!!!!!!!!assignedPort: "+ assignedPort);
-            // 2️⃣ Nginx 설정 업데이트 후 reload
-            logger.info("!!!!!!!!!!!!!!!!!!!!!!!updateNginxConfig start!!!!!!!!!!!!!!");
-            updateNginxConfig(containerName, assignedPort);
-            logger.info("!!!!!!!!!!!!!!!!!!!!!!!updateNginxConfig end!!!!!!!!!!!!!!");
-            logger.info("!!!!!!!!!!!!!!!!!!!!!!!reloadNginx start!!!!!!!!!!!!!!");
-            reloadNginx();
-            logger.info("!!!!!!!!!!!!!!!!!!!!!!!reloadNginx end!!!!!!!!!!!!!!");
 
             // 컨테이너 정보 반환
             Map<String, String> response = new HashMap<>();
@@ -108,25 +105,25 @@ public class IDEController {
     }
 
     // 🔹 Nginx 설정 업데이트
-    private void updateNginxConfig(String containerName, int port) throws IOException, InterruptedException {
-    	String command = "docker exec nginx sh -c 'echo \"" 
-	            + "location /" + containerName + " {\\n"
-	            + "    proxy_pass http://localhost:" + port + ";\\n"
-	            + "    proxy_set_header Host $host;\\n"
-	            + "    proxy_set_header X-Real-IP $remote_addr;\\n"
-	            + "    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\\n"
-	            + "}\" >> /etc/nginx/conf.d/default.conf'";
-	    
-	    ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", command);
-	    processBuilder.start().waitFor();
-    }
+//    private void updateNginxConfig(String containerName, int port) throws IOException, InterruptedException {
+//        String command = "docker exec nginx sh -c 'sed -i \"/# 개발환경에서 발생하는 오류를 제거해주기 위한 부분/i \\    location /" 
+//                + containerName + " {\\n"
+//                + "        proxy_pass http://localhost:" + port + ";\\n"
+//                + "        proxy_set_header Host $host;\\n"
+//                + "        proxy_set_header X-Real-IP $remote_addr;\\n"
+//                + "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\\n"
+//                + "    }\" /etc/nginx/conf.d/default.conf'";
+//	    
+//	    ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", command);
+//	    processBuilder.start().waitFor();
+//    }
 
 
     // 🔹 Nginx 설정 적용 (reload)
-    private void reloadNginx() throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder("nginx", "-s", "reload");
-        processBuilder.start().waitFor();
-    }
+//    private void reloadNginx() throws IOException, InterruptedException {
+//        ProcessBuilder processBuilder = new ProcessBuilder("nginx", "-s", "reload");
+//        processBuilder.start().waitFor();
+//    }
     
     //실행 중인 컨테이너 확인
     private boolean isContainerRunning(String containerName) throws IOException, InterruptedException {
